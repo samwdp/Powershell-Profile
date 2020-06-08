@@ -85,6 +85,18 @@ function fuzzy-cd
 {
     Get-ChildItem . -Recurse | ? { $_.PSIsContainer } | Invoke-Fzf | Set-Location
 }
-Set-Alias -Name ff -Value fuzzy-f
-Set-Alias -Name fcd -Value fuzzy-cd
+# Fuzzy Finders
+Set-Alias ff fuzzy-f
+Set-Alias fcd fuzzy-cd
+
+# Ensure that Get-ChildItemColor is loaded
+Import-Module Get-ChildItemColor
+
+# Set l and ls alias to use the new Get-ChildItemColor cmdlets
+Set-Alias l Get-ChildItemColor -Option AllScope
+Set-Alias ls Get-ChildItemColorFormatWide -Option AllScope
+
+Set-Alias ~ cuserprofile -Option AllScope
+Set-Alias doomrefresh "~/.emacs.d/bin/doom refresh"
+
 cls
