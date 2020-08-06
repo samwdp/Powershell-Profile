@@ -16,6 +16,7 @@
 Import-Module Get-ChildItemColor
 #+END_SRC
 ** Prompt Themeing
+*** Globals
 #+BEGIN_SRC pwsh
 $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding =
                     New-Object System.Text.UTF8Encoding
@@ -27,8 +28,9 @@ $global:fore = "$esc[38;5"
 $global:back = "$esc[48;5"
 $global:prompt = ''
 $global:name = Translate-ToRunes "sam" $true
-
-
+#+END_SRC
+*** Right Prompt
+#+BEGIN_SRC pwsh
 [System.Collections.Generic.List[ScriptBlock]]$global:PromptRight = @(
     # right aligned
     { "$fore;${errorColor}m{0}" -f $leftArrow }
@@ -37,7 +39,9 @@ $global:name = Translate-ToRunes "sam" $true
     { "$fore;8m$back;${errorColor}m{0}" -f $leftArrow }
     { "$fore;0m$back;8m{0}" -f $(get-date -format "hh:mm:ss tt") }
 )
-
+#+END_SRC
+*** left Prompt
+#+BEGIN_SRC pwsh
 [System.Collections.Generic.List[ScriptBlock]]$global:PromptLeft = @(
     # left aligned
     { "$fore;${forePromptColor}m$back;${global:platformColor}m{0}" -f $('{0:d4}' -f $name) }
@@ -52,7 +56,6 @@ $global:name = Translate-ToRunes "sam" $true
     { "$back;14m$fore;${forePromptColor}m{0}$esc[0m" -f $(Split-Path $pwd -leaf) }
 )
 #+END_SRC
-
 ** Functions
 *** Prompt
 #+BEGIN_SRC pwsh
