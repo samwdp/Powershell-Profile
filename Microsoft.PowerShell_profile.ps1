@@ -34,3 +34,73 @@ $global:name = Translate-ToRunes "sam" $true
 
     { "$back;14m$fore;${forePromptColor}m{0}$esc[0m" -f $(Split-Path $pwd -leaf) }
 )
+
+function global:prompt {
+    $global:errorColor = if ($?) {22} else {1}
+    $global:platformColor = if ($isWindows) {11} else {117}
+
+    $gitTest = $(git config -l) -match 'branch\.'
+    if (-not [string]::IsNullOrEmpty($gitTest)) {
+        $branch = git symbolic-ref --short -q HEAD
+        $aheadbehind = git status -sb
+        $distance = ''
+
+        if (-not [string]::IsNullOrEmpty($(git diff --staged))) { $branchbg = 3 }
+        else { $branchbg = 5 }
+
+        if (-not [string]::IsNullOrEmpty($(git status -s))) { $arrowfg = 3 }
+        else { $arrowfg = 5 }
+
+        if ($aheadbehind -match '\[\w+.*\w+\]$') {
+            $ahead = [regex]::matches($aheadbehind, '(?<=ahead\s)\d+').value
+            $behind = [regex]::matches($aheadbehind, '(?<=behind\s)\d+').value
+
+            $distance = "$back;15m$fore;${arrowfg}m{0}$esc[0m" -f $rightArrow
+            if ($ahead) {$distance += "$back;15m$fore;${forePromptColor}m{0}$esc[0m" -f "a$ahead"}
+            if ($behind) {$distance += "$back;15m$fore;${forePromptColor}m{0}$esc[0m" -f "b$behind"}
+            #$distance += "$fore;15m{0}$esc[0m" -f $rightArrow
+        }
+        else {
+            $distance = "$fore;${arrowfg}m{0}$esc[0m" -f $rightArrow
+        }
+
+        [System.Collections.Generic.List[ScriptBlock]]$gitPrompt = @(
+            { "$back;${branchbg}m$fore;14m{0}$esc[0m" -f $rightArrow }
+            { "$back;${branchbg}m$fore;${forePromptColor}m{0}$esc[0m" -f $branch }
+            { "{0}$esc[0m" -f $distance }
+        )
+        $leftSide = -join @($global:PromptLeft + $gitPrompt + {" "}).Invoke()
+    }
+    else {
+        $leftSide = -join @($global:PromptLeft + { "$fore;14m{0}$esc[0m" -f $rightArrow } + {" "}).Invoke()
+    }
+
+    $rightSide = -join ($global:promptRight).Invoke()
+    $offset = $global:host.UI.RawUI.BufferSize.Width - 28
+    $prompt = -join @($leftSide, "$esc[${offset}G", $rightSide, "$esc[0m" + "`n`r`>_ ")
+    $prompt
+}
+
+function fuzzy-f
+{
+    Get-ChildItem . -Recurse | ? { -not $_.PSIsContainer } | Invoke-Fzf | % { runemacs  $_ }
+}
+
+function fuzzy-cd
+{
+    Get-ChildItem . -Recurse | ? { $_.PSIsContainer } | Invoke-Fzf | Set-Location
+}
+
+Set-Alias ff fuzzy-f
+
+Set-Alias fcd fuzzy-cd
+
+Set-Alias l Get-ChildItemColor -Option AllScope
+
+Set-Alias ls Get-ChildItemColorFormatWide -Option AllScope
+
+Set-Alias ~ cuserprofile -Option AllScope
+
+Set-Alias doomrefresh "~/.emacs.d/bin/doom refresh"
+
+cls
