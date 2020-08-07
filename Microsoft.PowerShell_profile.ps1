@@ -11,7 +11,6 @@ $global:back = "$esc[48;5"
 $global:prompt = ''
 $global:name = Translate-ToRunes "sam" $true
 
-
 [System.Collections.Generic.List[ScriptBlock]]$global:PromptRight = @(
     # right aligned
     { "$fore;${errorColor}m{0}" -f $leftArrow }

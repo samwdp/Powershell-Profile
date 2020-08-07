@@ -12,12 +12,12 @@
 * Configuration
 ** Imports
 *** Get-ChildItemColor
-#+BEGIN_SRC pwsh
+#+BEGIN_SRC powershell
 Import-Module Get-ChildItemColor
 #+END_SRC
 ** Prompt Themeing
 *** Globals
-#+BEGIN_SRC pwsh
+#+BEGIN_SRC powershell
 $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding =
                     New-Object System.Text.UTF8Encoding
 $global:forePromptColor = 0
@@ -30,7 +30,7 @@ $global:prompt = ''
 $global:name = Translate-ToRunes "sam" $true
 #+END_SRC
 *** Right Prompt
-#+BEGIN_SRC pwsh
+#+BEGIN_SRC powershell
 [System.Collections.Generic.List[ScriptBlock]]$global:PromptRight = @(
     # right aligned
     { "$fore;${errorColor}m{0}" -f $leftArrow }
@@ -41,7 +41,7 @@ $global:name = Translate-ToRunes "sam" $true
 )
 #+END_SRC
 *** left Prompt
-#+BEGIN_SRC pwsh
+#+BEGIN_SRC powershell
 [System.Collections.Generic.List[ScriptBlock]]$global:PromptLeft = @(
     # left aligned
     { "$fore;${forePromptColor}m$back;${global:platformColor}m{0}" -f $('{0:d4}' -f $name) }
@@ -58,7 +58,7 @@ $global:name = Translate-ToRunes "sam" $true
 #+END_SRC
 ** Functions
 *** Prompt
-#+BEGIN_SRC pwsh
+#+BEGIN_SRC powershell
 function global:prompt {
     $global:errorColor = if ($?) {22} else {1}
     $global:platformColor = if ($isWindows) {11} else {117}
@@ -106,14 +106,14 @@ function global:prompt {
 }
 #+END_SRC
 *** Fuzzy Find
-#+BEGIN_SRC pwsh
+#+BEGIN_SRC powershell
 function fuzzy-f
 {
     Get-ChildItem . -Recurse | ? { -not $_.PSIsContainer } | Invoke-Fzf | % { runemacs  $_ }
 }
 #+END_SRC
 *** Fuzzy Change Directory
-#+BEGIN_SRC pwsh
+#+BEGIN_SRC powershell
 function fuzzy-cd
 {
     Get-ChildItem . -Recurse | ? { $_.PSIsContainer } | Invoke-Fzf | Set-Location
@@ -121,30 +121,30 @@ function fuzzy-cd
 #+END_SRC
 ** Alias
 *** Fizzy Find
-#+BEGIN_SRC pwsh
+#+BEGIN_SRC powershell
 Set-Alias ff fuzzy-f
 #+END_SRC
 *** Fuzzy Change Directory
-#+BEGIN_SRC pwsh
+#+BEGIN_SRC powershell
 Set-Alias fcd fuzzy-cd
 #+END_SRC
 *** Get Child Item Color
-#+BEGIN_SRC pwsh
+#+BEGIN_SRC powershell
 Set-Alias l Get-ChildItemColor -Option AllScope
 #+END_SRC
 *** Wide format Get Child Item Color
-#+BEGIN_SRC pwsh
+#+BEGIN_SRC powershell
 Set-Alias ls Get-ChildItemColorFormatWide -Option AllScope
 #+END_SRC
 *** Bash Like ~
-#+BEGIN_SRC pwsh
+#+BEGIN_SRC powershell
 Set-Alias ~ cuserprofile -Option AllScope
 #+END_SRC
 *** Doom refresh
-#+BEGIN_SRC pwsh
+#+BEGIN_SRC powershell
 Set-Alias doomrefresh "~/.emacs.d/bin/doom refresh"
 #+END_SRC
 ** Cleanup
-#+BEGIN_SRC pwsh
+#+BEGIN_SRC powershell
 cls
 #+END_SRC
