@@ -39,17 +39,18 @@ function YoutubeMusic
 
 Set-PSReadLineOption -PredictionSource History
 Set-PSReadLineOption -PredictionViewStyle ListView
-Set-PSReadLineOption -EditMode Vi
-
 Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
 Set-PSReadLineKeyHandler -Key Ctrl+m -ScriptBlock { YoutubeMusic }
-Set-PSReadLineKeyHandler -Chord Ctrl+f -ViMode Insert -ScriptBlock {
-    Set-Location -Path (Get-ChildItem -Path @("d:\work", "d:\projects") -Directory | ForEach-Object { $_.FullName } | Invoke-Fzf)
+$fuzzyFindDirectorys = [ScriptBlock] { 
+    Get-ChildItem -Path @("d:\work", "d:\projects") -Directory -Attributes Directory | Invoke-Fzf | Set-Location
+    Clear-Host
 }
+Set-PSReadLineKeyHandler -Chord Ctrl+f -ScriptBlock $fuzzyFindDirectorys
 Set-PSReadLineKeyHandler -Chord Ctrl+n -Function HistorySearchForward
 Set-PSReadLineKeyHandler -Chord Ctrl+p -Function HistorySearchBackward
 
 Set-Alias -Name ytm -Value YoutubeMusic
 Set-Alias -Name vim -Value nvim
+Set-Alias -Name v -Value nvim
 Clear-Host
 Invoke-Expression (&starship init powershell)
