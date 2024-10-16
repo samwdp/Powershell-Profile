@@ -1,7 +1,6 @@
 using namespace System.Management.Automation
 using namespace System.Management.Automation.Language
 Import-Module -Name Terminal-Icons
-Import-Module Get-ChildItemColor
 Import-Module PSReadLine
 
 Set-PSReadLineOption -BellStyle None
@@ -568,9 +567,8 @@ terminal height')
 function Install-Plugins
 {
     winget install starship
-    Install-Module -Name PSFzf -RequiredVersion 2.5.22 -Force
+    Install-Module -Name PSFzf -Force
     Install-Module -Name Terminal-Icons -Repository PSGallery -Force
-    Install-Module -Name Get-ChildItemColor -RequiredVersion 2.0.0 -Force
     Install-Module -Name Translate-ToRunes -Force
 }
 
