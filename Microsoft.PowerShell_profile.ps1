@@ -1,13 +1,12 @@
 using namespace System.Management.Automation
 using namespace System.Management.Automation.Language
-$devshell = Resolve-Path "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
-Import-Module $devshell
+#$devshell = Resolve-Path "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+#Import-Module $devshell
 Import-Module -Name Terminal-Icons
 Import-Module PSReadLine
 
-
 Set-PSReadLineOption -BellStyle None
-Enter-VsDevShell 2c33ab09 -SkipAutomaticLocation -DevCmdArguments "-arch=x64 -host_arch=x64"
+#Enter-VsDevShell 2c33ab09 -SkipAutomaticLocation -DevCmdArguments "-arch=x64 -host_arch=x64"
 
 Register-ArgumentCompleter -Native -CommandName 'wezterm' -ScriptBlock {
     param($wordToComplete, $commandAst, $cursorPosition)
@@ -578,10 +577,13 @@ function Install-Plugins
 }
 
 function Wezterm-Sessioniser {
+    # TODO: See wezterm can auto switch to newly created workspace
     $path = Get-ChildItem -Path @("d:\work", "d:\projects") -Directory | ForEach-Object { $_.FullName } | Invoke-Fzf
     $fileName = (Split-Path -Path $path -Leaf)
-    wezterm cli spawn --new-window --workspace $fileName -- pwsh -WorkingDirectory $path
-    [System.Management.Automation.PSConsoleReadLine]::InvokePrompt()
+    $pane_id = wezterm cli spawn --new-window --workspace $fileName -- pwsh -NoLogo -WorkingDirectory $path
+    # NOTE: this dosen't seem to work
+    wezterm cli activate-pane --pane-id $pane_id
+    #[System.Management.Automation.PSConsoleReadLine]::InvokePrompt()
 }
 
 Register-ArgumentCompleter -Native -CommandName winget -ScriptBlock {
@@ -606,7 +608,6 @@ Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock {
 Set-PSReadLineOption -PredictionSource History
 Set-PSReadLineOption -PredictionViewStyle ListView
 Set-PSReadLineOption -EditMode Vi
-
 Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
 
 Set-PSReadLineKeyHandler -Chord Ctrl+f -ViMode Insert -ScriptBlock {
@@ -615,6 +616,5 @@ Set-PSReadLineKeyHandler -Chord Ctrl+f -ViMode Insert -ScriptBlock {
 Set-PSReadLineKeyHandler -Chord Ctrl+n -Function HistorySearchForward
 Set-PSReadLineKeyHandler -Chord Ctrl+p -Function HistorySearchBackward
 
-Set-Alias -Name ytm -Value YoutubeMusic
 Set-Alias -Name vim -Value nvim
 Invoke-Expression (&starship init powershell)
