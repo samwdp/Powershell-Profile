@@ -1,9 +1,13 @@
 using namespace System.Management.Automation
 using namespace System.Management.Automation.Language
+$devshell = Resolve-Path "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+Import-Module $devshell
 Import-Module -Name Terminal-Icons
 Import-Module PSReadLine
 
+
 Set-PSReadLineOption -BellStyle None
+Enter-VsDevShell 2c33ab09 -SkipAutomaticLocation -DevCmdArguments "-arch=x64 -host_arch=x64"
 
 Register-ArgumentCompleter -Native -CommandName 'wezterm' -ScriptBlock {
     param($wordToComplete, $commandAst, $cursorPosition)
@@ -567,9 +571,17 @@ terminal height')
 function Install-Plugins
 {
     winget install starship
+    winget install wezterm
     Install-Module -Name PSFzf -Force
     Install-Module -Name Terminal-Icons -Repository PSGallery -Force
     Install-Module -Name Translate-ToRunes -Force
+}
+
+function Wezterm-Sessioniser {
+    $path = Get-ChildItem -Path @("d:\work", "d:\projects") -Directory | ForEach-Object { $_.FullName } | Invoke-Fzf
+    $fileName = (Split-Path -Path $path -Leaf)
+    wezterm cli spawn --new-window --workspace $fileName -- pwsh -WorkingDirectory $path
+    [System.Management.Automation.PSConsoleReadLine]::InvokePrompt()
 }
 
 Register-ArgumentCompleter -Native -CommandName winget -ScriptBlock {
@@ -596,8 +608,9 @@ Set-PSReadLineOption -PredictionViewStyle ListView
 Set-PSReadLineOption -EditMode Vi
 
 Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
+
 Set-PSReadLineKeyHandler -Chord Ctrl+f -ViMode Insert -ScriptBlock {
-    Set-Location -Path (Get-ChildItem -Path @("d:\work", "d:\projects") -Directory | ForEach-Object { $_.FullName } | Invoke-Fzf)
+    Wezterm-Sessioniser
 }
 Set-PSReadLineKeyHandler -Chord Ctrl+n -Function HistorySearchForward
 Set-PSReadLineKeyHandler -Chord Ctrl+p -Function HistorySearchBackward
