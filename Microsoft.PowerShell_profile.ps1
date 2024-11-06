@@ -4,6 +4,7 @@ using namespace System.Management.Automation.Language
 #Import-Module $devshell
 Import-Module -Name Terminal-Icons
 Import-Module PSReadLine
+Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
 
 Set-PSReadLineOption -BellStyle None
 #Enter-VsDevShell 2c33ab09 -SkipAutomaticLocation -DevCmdArguments "-arch=x64 -host_arch=x64"
@@ -616,5 +617,6 @@ Set-PSReadLineKeyHandler -Chord Ctrl+f -ViMode Insert -ScriptBlock {
 Set-PSReadLineKeyHandler -Chord Ctrl+n -Function HistorySearchForward
 Set-PSReadLineKeyHandler -Chord Ctrl+p -Function HistorySearchBackward
 
-Set-Alias -Name vim -Value nvim
+function nvim_open { nvim .}
+Set-Alias -Name vi -Value nvim_open
 Invoke-Expression (&starship init powershell)
