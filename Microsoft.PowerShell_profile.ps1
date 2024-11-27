@@ -572,19 +572,11 @@ function Install-Plugins
 {
     winget install starship
     winget install wezterm
+    winget install fzf
+    winget install zoxide
     Install-Module -Name PSFzf -Force
     Install-Module -Name Terminal-Icons -Repository PSGallery -Force
     Install-Module -Name Translate-ToRunes -Force
-}
-
-function Wezterm-Sessioniser {
-    # TODO: See wezterm can auto switch to newly created workspace
-    $path = Get-ChildItem -Path @("d:\work", "d:\projects") -Directory | ForEach-Object { $_.FullName } | Invoke-Fzf
-    $fileName = (Split-Path -Path $path -Leaf)
-    $pane_id = wezterm cli spawn --new-window --workspace $fileName -- pwsh -NoLogo -WorkingDirectory $path
-    # NOTE: this dosen't seem to work
-    wezterm cli activate-pane --pane-id $pane_id
-    #[System.Management.Automation.PSConsoleReadLine]::InvokePrompt()
 }
 
 Register-ArgumentCompleter -Native -CommandName winget -ScriptBlock {
@@ -609,14 +601,24 @@ Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock {
 Set-PSReadLineOption -PredictionSource History
 Set-PSReadLineOption -PredictionViewStyle ListView
 Set-PSReadLineOption -EditMode Vi
-Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
+#Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
 
-Set-PSReadLineKeyHandler -Chord Ctrl+f -ViMode Insert -ScriptBlock {
-    Wezterm-Sessioniser
-}
 Set-PSReadLineKeyHandler -Chord Ctrl+n -Function HistorySearchForward
 Set-PSReadLineKeyHandler -Chord Ctrl+p -Function HistorySearchBackward
 
 function nvim_open { nvim .}
+function git_add {git add .}
+function git_commit {git commit -m}
+function git_fetch {git fetch --prune}
+function git_worktree_add {git worktree add}
+function git_worktree_remove {git worktree remove}
+function git_worktree_clone {git clone --bare}
 Set-Alias -Name vi -Value nvim_open
+Set-Alias -Name ga -Value git_add
+Set-Alias -Name gcmm -Value git_commit
+Set-Alias -Name gf -Value git_fetch
+Set-Alias -Name gwa -Value git_worktree_add
+Set-Alias -Name gwr -Value git_worktree_remove
+Set-Alias -Name gwc -Value git_worktree_clone
 Invoke-Expression (&starship init powershell)
+Invoke-Expression (& { (zoxide init --cmd "cd" powershell | Out-String) })
